@@ -11,4 +11,4 @@ php:
 before_script:
   - composer update
 
-script: phpunit
+script: vendor/bin/phpunit
