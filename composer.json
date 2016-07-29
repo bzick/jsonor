@@ -1,0 +1,24 @@
+{
+  "name": "bzick/jsonor",
+  "description": "Useful container for JSON. Use JSON as array",
+  "license": "MIT",
+  "keywords": ["json", "object", "container", "wrapper"],
+  "authors": [
+	{
+	  "name": "Ivan Shalganov",
+	  "email": "a.cobest@gmail.com"
+	}
+  ],
+  "require": {
+	"php": "^5.4 || ^7.0",
+	"seld/jsonlint": "1.*"
+  },
+  "require-dev": {
+	"phpunit/phpunit": "*"
+  },
+  "autoload": {
+	"psr-4": {
+	  "Jsonor\\": "src"
+	}
+  }
+}
