@@ -3,9 +3,8 @@
 namespace Jsonor;
 
 
-use PHPUnit\Framework\TestCase;
 
-class ContainerTest extends TestCase {
+class ContainerTest extends \PHPUnit_Framework_TestCase {
 
     public $changes = 0;
 
