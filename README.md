@@ -1,6 +1,8 @@
 JSON Container
 ==============
 
+[![Build Status](https://travis-ci.org/bzick/jsonor.svg?branch=master)](https://travis-ci.org/bzick/jsonor)
+
 Usage
 -----
 
