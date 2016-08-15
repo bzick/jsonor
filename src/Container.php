@@ -9,7 +9,6 @@ class Container implements \ArrayAccess, \Countable, \Iterator, \JsonSerializabl
     public $owner;
     public $save;
     public $changed = false;
-    public $delayed = false;
 
     public function __construct($data, self $parent = null) {
         $this->data   = $data;
@@ -24,18 +23,16 @@ class Container implements \ArrayAccess, \Countable, \Iterator, \JsonSerializabl
     /**
      * Set callback for changes
      * @param callable $callback
-     * @param bool $delayed if true - callback will be called immediately otherwise in the destructor
      *
      * @return $this
      */
-    public function onChange(callable $callback, $delayed = false) {
+    public function onChange(callable $callback) {
         $this->save = $callback;
-        $this->delayed = $delayed;
         return $this;
     }
 
     /**
-     * Call save callback immediately
+     * Call save callback
      * @param bool $force
      *
      * @return $this
@@ -128,13 +125,6 @@ class Container implements \ArrayAccess, \Countable, \Iterator, \JsonSerializabl
         return $this->data[$offset];
     }
 
-    private function modified() {
-        $this->changed = true;
-        if(!$this->delayed) {
-            $this->save();
-        }
-    }
-
     /**
      * Offset to set
      * @link  http://php.net/manual/en/arrayaccess.offsetset.php
@@ -158,7 +148,8 @@ class Container implements \ArrayAccess, \Countable, \Iterator, \JsonSerializabl
                 $this->data[$offset] = $value;
             }
         }
-        $this->modified();
+        $this->changed = true;
+        $this->save();
     }
 
     /**
@@ -171,8 +162,11 @@ class Container implements \ArrayAccess, \Countable, \Iterator, \JsonSerializabl
      * @since 5.0.0
      */
     public function offsetUnset($offset) {
-        unset($this->data[$offset]);
-        $this->modified();
+        if(isset($this->data[$offset])) {
+            unset($this->data[$offset]);
+            $this->changed = true;
+            $this->save();
+        }
     }
 
     /**
@@ -182,7 +176,7 @@ class Container implements \ArrayAccess, \Countable, \Iterator, \JsonSerializabl
      * @since 5.1.0
      */
     public function serialize() {
-        return json_encode($this->data);
+        return json_encode($this->data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -195,7 +189,7 @@ class Container implements \ArrayAccess, \Countable, \Iterator, \JsonSerializabl
      * @since 5.1.0
      */
     public function unserialize($serialized) {
-        $this->data = json_decode($serialized);
+        $this->data = json_decode($serialized, true);
     }
 
     /**
@@ -223,17 +217,10 @@ class Container implements \ArrayAccess, \Countable, \Iterator, \JsonSerializabl
     }
 
     public function __debugInfo() {
-        return ["data" => $this->data];
+        return ["data" => $this->data, "changed" => $this->changed];
     }
 
     public function __toString() {
         return json_encode($this, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
-
-    public function __destruct() {
-        if($this->delayed) {
-            $this->save();
-        }
-    }
-
 }
